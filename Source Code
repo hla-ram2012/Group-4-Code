@@ -106,7 +106,7 @@ name = input("What should we call you? ").strip()
 stats_data = load_stats()
 
 Formula_Based_Dictionary = [
-    [['Area of a Square', 's^2'], ['Area of a Rectangle', 'w*h'], ['Area of a Triangle', 'b*h/2'], ['Rhombus', '(D*d)/2'], ['Trapezoid', '(B*b)/2]*h'], ['Regular polygon', '(P/2)*a'], ['Circle', 'πr^2']],
+    [['Area of a Square', 's^2'], ['Area of a Rectangle', 'w*h'], ['Area of a Triangle', 'b*h/2'], ['Rhombus', '(D*d)/2'], ['Trapezoid', '(B*b)/2*h'], ['Regular polygon', '(P/2)*a'], ['Circle', 'πr^2']],
     [['Commutative Property', 'a*b=b*a'], ['Associative Property', 'a(b*c)=(a*b)c'], ['Distributive Property', 'a*(b+c)=a*b+a*c'], ['Identity Property', 'a*1=a'], ['Inverse Property', 'a*1/a=1']],
     [['Square', '4l'], ['Rectangle', '2(w+h)'], ['Triangle', 'a+b+c'], ['Circle', '2πr']],
     [['Square of a Binomial', 'a^2+2ab+b'], ['Difference of Squares', '(a-b)(a+b)'], ['Product of Sum and Differences', '(a-b)(a+b)']]
