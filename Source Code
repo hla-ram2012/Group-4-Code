@@ -1,0 +1,147 @@
+import time
+import random
+import json
+import os
+
+STATS_FILE = 'stats.json'
+
+def load_stats():
+    if os.path.exists(STATS_FILE):
+        with open(STATS_FILE, 'r') as f:
+            return json.load(f)
+    return {}
+
+def save_stats(stats):
+    with open(STATS_FILE, 'w') as f:
+        json.dump(stats, f, indent=4)
+
+def update_player_stats(name, won):
+    stats = load_stats()
+    if name not in stats:
+        stats[name] = {"games_played": 0, "wins": 0}
+    
+    stats[name]["games_played"] += 1
+    if won:
+        stats[name]["wins"] += 1
+    
+    save_stats(stats)
+
+def colors(formula, formula_guess):
+    inputted_user = input("Enter your guess: ")
+    inputted = list(inputted_user)
+    
+    green = '\033[42m'
+    yellow = '\033[43m'
+    red = '\033[41m'
+    reset = '\033[0m'
+    
+    temp_guess = list(formula_guess)
+    output = []
+    res_list = [red] * len(inputted)
+    
+    for i in range(len(inputted)):
+        if i < len(temp_guess) and inputted[i].lower() == temp_guess[i].lower():
+            res_list[i] = green
+            temp_guess[i] = "#"
+    for i in range(len(inputted)):
+        if res_list[i] == green: continue
+        for j in range(len(temp_guess)):
+            if inputted[i].lower() == temp_guess[j].lower():
+                res_list[i] = yellow
+                temp_guess[j] = "#"
+                break
+    
+    for i in range(len(inputted)):
+        print(f"{res_list[i]}{inputted[i]}{reset}", end="")
+    print()
+    
+    return inputted_user
+
+def start_game(name, Formula_Based_Dictionary, Topics):
+    difficulty = 0
+    while difficulty not in range(1, 5):
+        try:
+            difficulty = int(input(f'''
+What difficulty would you like to choose?
+-----------------------------
+1 - Easy (8 Attempts)
+2 - Normal (6 Attempts)
+3 - Hard (4 Attempts)
+4 - Endless (Infinite Attempts)
+-----------------------------
+Selection: '''))
+        except ValueError:
+            continue
+
+    attempts_allowed = {1: 8, 2: 6, 3: 4, 4: 999}[difficulty]
+    
+    formula_pair = random.choice(Formula_Based_Dictionary[Topics-1])
+    target_answer = formula_pair[1]
+    
+    print(f"""\nTarget: {formula_pair[0]}
+Hint: The formula has {len(target_answer)} characters.\n""")
+
+    inputted_user = ''
+    current_attempt = 0
+    won = False
+
+    while current_attempt < attempts_allowed:
+        inputted_user = colors(target_answer, list(target_answer))
+        current_attempt += 1
+        
+        if inputted_user.lower() == target_answer.lower():
+            print(f"Correct! You got it in {current_attempt} tries.\n")
+            won = True
+            break
+        
+        if difficulty != 4:
+            print(f"Attempts left: {attempts_allowed - current_attempt}")
+
+    if won != True:
+        print(f"\nGame Over! The correct answer was: {target_answer}")
+
+    update_player_stats(name, won)
+
+name = input("What should we call you? ").strip()
+stats_data = load_stats()
+
+Formula_Based_Dictionary = [
+    [['Area of a Square', 's^2'], ['Area of a Rectangle', 'w*h'], ['Area of a Triangle', 'b*h/2'], ['Rhombus', '(D*d)/2'], ['Trapezoid', '(B*b)/2]*h'], ['Regular polygon', '(P/2)*a'], ['Circle', 'πr^2']],
+    [['Commutative Property', 'a*b=b*a'], ['Associative Property', 'a(b*c)=(a*b)c'], ['Distributive Property', 'a*(b+c)=a*b+a*c'], ['Identity Property', 'a*1=a'], ['Inverse Property', 'a*1/a=1']],
+    [['Square', '4l'], ['Rectangle', '2(w+h)'], ['Triangle', 'a+b+c'], ['Circle', '2πr']],
+    [['Square of a Binomial', 'a^2+2ab+b'], ['Difference of Squares', '(a-b)(a+b)'], ['Product of Sum and Differences', '(a-b)(a+b)']]
+]
+
+menu_selection = 0
+while menu_selection != 4:
+    print(f"\n--- NERDLE MENU (Player: {name}) ---")
+    try:
+        menu_selection = int(input("""1 - View Formulas\n2 - View My Stats\n3 - Start Game\n4 - Exit\nSelection: """))
+    except ValueError:
+        continue
+
+    if menu_selection == 1:
+        for category in Formula_Based_Dictionary:
+            for item in category:
+                print(f"{item[0]}: {item[1]}")
+
+    if menu_selection == 2:
+        stats = load_stats()
+        p = stats.get(name, {"games_played": 0, "wins": 0})
+        if p['games_played'] > 0:
+            wr = (p['wins'] / p['games_played'] * 100)
+        else:
+            wr = 0
+        print(f"\n--- {name}'s Stats ---")
+        print(f"Games Played: {p['games_played']}")
+        print(f"Wins: {p['wins']}")
+        print(f"Win Rate: {wr:.1f}%")
+
+    if menu_selection == 3:
+        try:
+            topic = int(input("\n1 - Area of 2D Shapes\n2 - Properties of Real Numbers\n3 - Perimeter of 2D Shapes\n4 - Special Products\nSelection: "))
+            start_game(name, Formula_Based_Dictionary, topic)
+        except (ValueError, IndexError):
+            print("Invalid topic selection.")
+
+print("Thanks for playing!")
